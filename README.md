@@ -18,6 +18,7 @@ repeatedly to a stream:
 - `python kinesis_demo.py`
 
 ## Upcoming changes:
+- Now that PoC works, clean up code and make it more modular
 - Rather than generating dummy data I would like to either connect to real-time
 device data, or fetch some interesting open data from a web API
 - Scale up the number of shards in the stream to process more data but am
