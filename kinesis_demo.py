@@ -1,19 +1,40 @@
 import boto3
 import json
 import random
-import string
 import uuid
 import time
 import logging
+import requests
+from constants import COINDESK_ENDPOINT
 
 logging.basicConfig(level='INFO')
 
 
-def generate_random_str(l):
-    return ''.join([random.choice(string.ascii_letters + string.digits) for n in range(l)])
+def poll_price_data():
+    """
+    Polls the Coindesk API to fetch the latest price data.
+    :return: dict of USD Bitcoin price with time.
+    """
+    resp = requests.get(COINDESK_ENDPOINT)  # Powered by CoinDesk
+    if resp.status_code == 200:
+        logging.info("GET request succeeded")
+        data = resp.json()
+        data_dict = {
+            "id": str(uuid.uuid1()),
+            "time": data['time']['updated'],
+            "currency": data['bpi']['USD']['code'],
+            "price": data['bpi']['USD']['rate']
+        }
+        return data_dict
+    else:
+        logging.error("GET request failed")
 
 
 if __name__ == "__main__":
+    """
+    Entry point for the Kinesis stream that (for the moment) has dummy data written to it, before being processed
+    by a Lambda function and written to DynamoDB.
+    """
 
     session = boto3.session.Session(profile_name='alex')
     client = session.client('kinesis')
@@ -26,13 +47,8 @@ if __name__ == "__main__":
         response = client.create_stream(StreamName='demo_stream', ShardCount=1)
 
     while True:
-        my_dict = {
-          "id": str(uuid.uuid1()),
-          "name": generate_random_str(5),
-          "address": generate_random_str(10),
-          "year": random.randint(2000, 2021)
-        }
+        payload = poll_price_data()
         time.sleep(5)
-        put = client.put_record(StreamName='demo_stream', Data=json.dumps(my_dict),
+        put = client.put_record(StreamName='demo_stream', Data=json.dumps(payload),
                                 PartitionKey=str(random.randint(0, 101)))
         logging.info("result of put record: {}".format(put.get('ResponseMetadata').get('HTTPStatusCode')))
