@@ -1,10 +1,10 @@
-# Demo streaming application
+# BIP data streaming application
 
-This repo is set up to demonstrate a streaming app which:
-- Uses the Python AWS SDK as a Kinesis streams producer
-- Puts the data to a Kinesis stream
-- Outputs data to a Lambda function as a Kinesis consumer
-- Uses the Lambda function to store data in DynamoDB
+This pipeline is set up to:
+- Poll data from the Coindesk API (https://www.coindesk.com/coindesk-api)
+- Loads price data into an AWS Kinesis stream
+- Have AWS Lambda ingest stream data on a FIFO basis
+- Use the Lambda function to store the data in DynamoDB
 
 ## Setup
 - From the `kinesis_demo` directory
@@ -12,18 +12,15 @@ This repo is set up to demonstrate a streaming app which:
 - `pip install -r requirements.txt`
 
 ## Running:
-
-- To run the Python Kinesis producer which just writes a dict of values
-repeatedly to a stream:
 - `python kinesis_demo.py`
 
 ## Upcoming changes:
-- Now that PoC works, clean up code and make it more modular
-- Rather than generating dummy data I would like to either connect to real-time
-device data, or fetch some interesting open data from a web API
+- Would like to find a good solution to visualise the data in DynamoDB, to get a rolling "ticker tape" style
+view of BPI prices.
 - Scale up the number of shards in the stream to process more data but am
-constrained by costs at the moment
+constrained by costs at the moment (Kinesis is expensive)
 - Start scaling up the volume to test ability for Lambda to process and find the 
 point at which its synchronous processing becomes too slow, at which point modify 
-Lambda to process the data asynchronously.
-- Output to a data warehouse such as Redshift as data volume grows 
+Lambda to process the data asynchronously (again, this is expensive).
+- Maybe output to a data warehouse (relational DB may suffice, data warehouse is probably overkill for such small data)
+such as Redshift as data volume grows or simply for easier visualisation.
