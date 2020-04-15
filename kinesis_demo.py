@@ -32,7 +32,7 @@ def poll_price_data():
 
 if __name__ == "__main__":
     """
-    Entry point for the Kinesis stream that (for the moment) has dummy data written to it, before being processed
+    Entry point for the Kinesis stream, before being processed
     by a Lambda function and written to DynamoDB.
     """
     # Only using local credentials for now, but will need to store in config when it needs to be deployed
